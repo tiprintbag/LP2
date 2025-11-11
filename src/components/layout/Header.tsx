@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
+import Image from 'next/image'
 import Button from '@/components/ui/Button'
 
 const Header: React.FC = () => {
@@ -22,9 +23,16 @@ const Header: React.FC = () => {
           <div className="flex-shrink-0">
             <button
               onClick={() => scrollToSection('home')}
-              className="text-2xl font-bold bg-gradient-to-r from-primary-600 to-blue-500 bg-clip-text text-transparent"
+              className="flex items-center"
             >
-              Printbag
+              <Image
+                src={`${process.env.NODE_ENV === 'production' ? '/siteprintbag' : ''}/images/printbag.png`}
+                alt="Printbag"
+                width={150}
+                height={50}
+                className="h-10 w-auto object-contain"
+                unoptimized
+              />
             </button>
           </div>
 
