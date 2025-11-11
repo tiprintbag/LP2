@@ -1,5 +1,6 @@
 import Hero from '@/components/sections/Hero'
 import LogosStrip from '@/components/sections/LogosStrip'
+import Products from '@/components/sections/Products'
 import Features from '@/components/sections/Features'
 import About from '@/components/sections/About'
 import UseCases from '@/components/sections/UseCases'
@@ -13,6 +14,7 @@ export default function Home() {
     <>
       <Hero />
       <LogosStrip />
+      <Products />
       <Features />
       <About />
       <UseCases />
