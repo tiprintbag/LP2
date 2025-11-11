@@ -14,9 +14,9 @@ export default function Home() {
     <>
       <Hero />
       <LogosStrip />
-      <Products />
       <Features />
       <About />
+      <Products />
       <UseCases />
       <HowItWorks />
       <Sustainability />
