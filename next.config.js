@@ -7,6 +7,8 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
+  // Trailing slash para garantir compatibilidade com GitHub Pages
+  trailingSlash: true,
 }
 
 module.exports = nextConfig

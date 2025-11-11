@@ -4,10 +4,9 @@ import React from 'react'
 import Image from 'next/image'
 
 const LogosStrip: React.FC = () => {
-  const basePath = process.env.NODE_ENV === 'production' ? '/siteprintbag' : ''
   const images = [
-    `${basePath}/images/parceiros.png`,
-    `${basePath}/images/parceiros1.png`,
+    '/images/parceiros.png',
+    '/images/parceiros1.png',
   ]
 
   // Duplicar as imagens para criar um loop infinito suave
@@ -22,8 +21,8 @@ const LogosStrip: React.FC = () => {
         <div className="relative overflow-hidden">
           <div className="flex gap-8 md:gap-12 animate-scroll">
             {duplicatedImages.map((image, index) => (
-              <div
-                key={index}
+            <div
+              key={index}
                 className="flex-shrink-0"
               >
                 <Image
@@ -34,8 +33,8 @@ const LogosStrip: React.FC = () => {
                   className="h-auto w-auto max-h-24 md:max-h-32 object-contain"
                   unoptimized
                 />
-              </div>
-            ))}
+            </div>
+          ))}
           </div>
         </div>
       </div>
