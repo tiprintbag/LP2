@@ -4,7 +4,10 @@ import React from 'react'
 import Image from 'next/image'
 
 const LogosStrip: React.FC = () => {
-  const basePath = process.env.NEXT_PUBLIC_BASE_PATH || ''
+  // Next.js adiciona automaticamente o basePath, mas precisamos garantir em produção
+  const basePath = typeof window !== 'undefined' && window.location.pathname.startsWith('/siteprintbag') 
+    ? '/siteprintbag' 
+    : (process.env.NEXT_PUBLIC_BASE_PATH || '')
   const images = [
     `${basePath}/images/parceiros.png`,
     `${basePath}/images/parceiros1.png`,

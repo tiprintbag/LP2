@@ -39,7 +39,10 @@ const About: React.FC = () => {
               playsInline
               className="w-full h-full object-cover rounded-xl"
             >
-              <source src={`${process.env.NEXT_PUBLIC_BASE_PATH || ''}/images/printhorizontal.mp4`} type="video/mp4" />
+              <source 
+                src={`${typeof window !== 'undefined' && window.location.pathname.startsWith('/siteprintbag') ? '/siteprintbag' : (process.env.NEXT_PUBLIC_BASE_PATH || '')}/images/printhorizontal.mp4`} 
+                type="video/mp4" 
+              />
               Seu navegador não suporta o elemento de vídeo.
             </video>
           </div>

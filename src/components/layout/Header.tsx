@@ -26,7 +26,7 @@ const Header: React.FC = () => {
               className="flex items-center"
             >
               <Image
-                src={`${process.env.NEXT_PUBLIC_BASE_PATH || ''}/images/printbag.png`}
+                src={`${typeof window !== 'undefined' && window.location.pathname.startsWith('/siteprintbag') ? '/siteprintbag' : (process.env.NEXT_PUBLIC_BASE_PATH || '')}/images/printbag.png`}
                 alt="Printbag"
                 width={150}
                 height={50}
