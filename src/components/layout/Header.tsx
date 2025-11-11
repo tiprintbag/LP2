@@ -26,7 +26,7 @@ const Header: React.FC = () => {
               className="flex items-center"
             >
               <Image
-                src="/images/printbag.png"
+                src={`${process.env.NEXT_PUBLIC_BASE_PATH || ''}/images/printbag.png`}
                 alt="Printbag"
                 width={150}
                 height={50}

@@ -4,9 +4,10 @@ import React from 'react'
 import Image from 'next/image'
 
 const LogosStrip: React.FC = () => {
+  const basePath = process.env.NEXT_PUBLIC_BASE_PATH || ''
   const images = [
-    '/images/parceiros.png',
-    '/images/parceiros1.png',
+    `${basePath}/images/parceiros.png`,
+    `${basePath}/images/parceiros1.png`,
   ]
 
   // Duplicar as imagens para criar um loop infinito suave
