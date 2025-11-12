@@ -151,8 +151,8 @@ const Contact: React.FC = () => {
   }
 
   return (
-    <section id="contato" className="py-20 px-4 sm:px-6 lg:px-8">
-      <div className="container mx-auto max-w-6xl">
+    <section id="contato" className="py-12 sm:py-16 lg:py-20 px-4 sm:px-6 lg:px-8">
+      <div className="container mx-auto max-w-6xl 2xl:max-w-7xl">
         <div className="text-center mb-16">
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-4">
             Entre em contato
@@ -323,8 +323,8 @@ const Contact: React.FC = () => {
                   </div>
                   <div>
                     <h4 className="font-semibold text-gray-900 mb-1">Telefone</h4>
-                    <a href="tel:+554792455392" className="text-primary-600 hover:text-primary-700">
-                      +55 47 9245-5392
+                    <a href="tel:+554732410800" className="text-primary-600 hover:text-primary-700">
+                      (47) 3241-0800
                     </a>
                   </div>
                 </div>

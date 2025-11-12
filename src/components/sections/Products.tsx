@@ -4,24 +4,27 @@ import React from 'react'
 import Image from 'next/image'
 
 const Products: React.FC = () => {
-  // Detecção dinâmica de basePath
-  const basePath = typeof window !== 'undefined' && window.location.pathname.startsWith('/siteprintbag') 
-    ? '/siteprintbag' 
-    : (process.env.NEXT_PUBLIC_BASE_PATH || '')
-
   return (
-    <section className="py-12 bg-white">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-center">
-          <Image
-            src={`${basePath}/images/produtos.png`}
-            alt="Produtos Printbag"
-            width={1920}
-            height={1080}
-            className="w-full h-auto max-w-7xl object-contain"
-            unoptimized
-          />
+    <section id="produtos" className="bg-white">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 max-w-7xl">
+        <div className="text-center mb-8 sm:mb-12">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-4 sm:mb-6">
+            Confira um de nossos produtos
+          </h2>
+          <p className="text-lg sm:text-xl md:text-2xl lg:text-3xl text-gray-700 max-w-4xl mx-auto leading-relaxed px-4">
+            Embalagens que transformam a experiência do seu cliente e elevam o valor da sua marca
+          </p>
         </div>
+      </div>
+      <div className="w-full">
+          <Image
+            src="/LP2/images/produtos.png"
+            alt="Produtos Printbag"
+          width={1920}
+          height={1080}
+          className="w-full h-auto object-cover"
+          unoptimized
+        />
       </div>
     </section>
   )

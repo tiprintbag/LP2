@@ -135,7 +135,7 @@ npm run lint
 
 - **Webhook do formulário**: `https://ia-n8n.4xfwtv.easypanel.host/webhook/9bb8cab3-e473-4c6b-9faa-bfd68115c8b9`
 - **E-mail de contato**: `marketing@printbag.com.br`
-- **Telefone**: `+55 47 9245-5392`
+- **Telefone**: `(47) 3241-0800`
 
 ## 🎨 Características do Site
 

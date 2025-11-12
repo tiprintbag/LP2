@@ -61,7 +61,7 @@ public/
 ## 📞 Contato
 
 - **E-mail**: marketing@printbag.com.br
-- **Telefone**: +55 47 9245-5392
+- **Telefone**: (47) 3241-0800
 - **Endereço**: Av. José Francisco Bernardes, 1751 - Bairro Areias, Camboriú - SC, 88345-200
 
 ---

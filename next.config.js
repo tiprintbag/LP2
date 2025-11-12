@@ -2,7 +2,8 @@
 const nextConfig = {
   reactStrictMode: true,
   // Configurações para GitHub Pages
-  basePath: '/siteprintbag',
+  // Sempre usa basePath /LP2 e export estático para GitHub Pages
+  basePath: '/LP2',
   output: 'export',
   images: {
     unoptimized: true,

@@ -4,21 +4,17 @@ import React from 'react'
 import Image from 'next/image'
 
 const LogosStrip: React.FC = () => {
-  // Next.js adiciona automaticamente o basePath, mas precisamos garantir em produção
-  const basePath = typeof window !== 'undefined' && window.location.pathname.startsWith('/siteprintbag') 
-    ? '/siteprintbag' 
-    : (process.env.NEXT_PUBLIC_BASE_PATH || '')
   const images = [
-    `${basePath}/images/parceiros.png`,
-    `${basePath}/images/parceiros1.png`,
+    '/LP2/images/parceiros.png',
+    '/LP2/images/parceiros1.png',
   ]
 
   // Duplicar as imagens para criar um loop infinito suave
   const duplicatedImages = [...images, ...images]
 
   return (
-    <section className="py-12 bg-white overflow-hidden">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+    <section className="py-8 sm:py-12 bg-white overflow-hidden">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
         <p className="text-center text-xl md:text-2xl text-gray-700 mb-8 font-semibold">
           Empresas que confiam na Printbag
         </p>

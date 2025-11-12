@@ -10,6 +10,11 @@
   body {
     @apply bg-white text-gray-900 antialiased;
   }
+
+  /* Limitar largura máxima do conteúdo em telas muito grandes */
+  .container {
+    @apply max-w-7xl;
+  }
 }
 
 @layer utilities {

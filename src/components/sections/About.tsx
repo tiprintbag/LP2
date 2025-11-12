@@ -1,17 +1,26 @@
+'use client'
+
 import React from 'react'
 import Card from '@/components/ui/Card'
 import Badge from '@/components/ui/Badge'
+import Button from '@/components/ui/Button'
 
 const About: React.FC = () => {
+  const scrollToSection = (id: string) => {
+    const element = document.getElementById(id)
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' })
+    }
+  }
   return (
-    <section id="sobre" className="py-20 px-4 sm:px-6 lg:px-8">
-      <div className="container mx-auto">
+    <section id="sobre" className="py-12 sm:py-16 lg:py-20 px-4 sm:px-6 lg:px-8">
+      <div className="container mx-auto max-w-7xl">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mb-16">
           <div>
             <Badge variant="info" className="mb-4">
               Sobre a Printbag
             </Badge>
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-6">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-6">
               Mais que uma indústria gráfica
             </h2>
             <p className="text-xl text-gray-600 mb-6">
@@ -20,7 +29,7 @@ const About: React.FC = () => {
             <p className="text-gray-600 mb-6">
               Com mais de 15 anos de experiência, a Printbag está localizada em Camboriú - SC e atende desde pequenos comércios até grandes redes de varejo e franquias em todo o Brasil.
             </p>
-            <div className="flex items-center gap-6">
+            <div className="flex items-center gap-6 mb-6">
               <div>
                 <div className="text-3xl font-bold text-primary-600">15+</div>
                 <div className="text-sm text-gray-600">Anos de experiência</div>
@@ -30,6 +39,13 @@ const About: React.FC = () => {
                 <div className="text-sm text-gray-600">Certificada</div>
               </div>
             </div>
+            <Button
+              variant="primary"
+              size="lg"
+              onClick={() => scrollToSection('contato')}
+            >
+              Solicite um Orçamento
+            </Button>
           </div>
           <div className="bg-gradient-to-br from-primary-100 to-blue-100 rounded-2xl p-4 h-full flex items-center justify-center overflow-hidden">
             <video
@@ -40,7 +56,7 @@ const About: React.FC = () => {
               className="w-full h-full object-cover rounded-xl"
             >
               <source 
-                src={`${typeof window !== 'undefined' && window.location.pathname.startsWith('/siteprintbag') ? '/siteprintbag' : (process.env.NEXT_PUBLIC_BASE_PATH || '')}/images/printhorizontal.mp4`} 
+                src="/LP2/images/printhorizontal.mp4" 
                 type="video/mp4" 
               />
               Seu navegador não suporta o elemento de vídeo.

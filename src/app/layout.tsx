@@ -12,6 +12,14 @@ export const metadata: Metadata = {
   keywords: 'embalagens de papel, sacolas sustentáveis, embalagens personalizadas, FSC, Camboriú SC',
 }
 
+export function generateViewport() {
+  return {
+    width: 'device-width',
+    initialScale: 1,
+    maximumScale: 5,
+  }
+}
+
 export default function RootLayout({
   children,
 }: {
