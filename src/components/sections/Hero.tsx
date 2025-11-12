@@ -1,7 +1,6 @@
 'use client'
 
 import React from 'react'
-import Image from 'next/image'
 import { getAssetPath } from '@/utils/paths'
 import Button from '@/components/ui/Button'
 
@@ -62,7 +61,7 @@ const Hero: React.FC = () => {
 
           {/* Imagem de Produtos */}
           <div className="relative flex items-center justify-center w-full h-full overflow-visible max-w-2xl mx-auto lg:max-w-none">
-            <Image
+            <img
               src={getAssetPath('/images/weleda-2-transparent.png')}
               alt="Enxoval de Produtos Printbag"
               width={2000}
@@ -73,7 +72,7 @@ const Hero: React.FC = () => {
                 transform: 'scale(1.1) lg:scale(1.2) xl:scale(1.3) translateX(5%)',
                 transformOrigin: 'center'
               }}
-              unoptimized
+              loading="lazy"
             />
             {/* Decorative elements */}
             <div className="absolute -top-4 -right-4 w-24 h-24 bg-primary-200 rounded-full opacity-20 blur-2xl"></div>

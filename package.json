@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build && node scripts/copy-nojekyll.js",
-    "build:custom-domain": "cross-env USE_CUSTOM_DOMAIN=true next build && node scripts/copy-nojekyll.js",
+    "build:custom-domain": "cross-env USE_CUSTOM_DOMAIN=true next build && node scripts/copy-nojekyll.js && cross-env USE_CUSTOM_DOMAIN=true node scripts/fix-asset-paths.js",
     "start": "next start",
     "lint": "next lint",
     "predeploy": "npm run build",

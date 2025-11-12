@@ -1,7 +1,6 @@
 'use client'
 
 import React from 'react'
-import Image from 'next/image'
 import { getAssetPath } from '@/utils/paths'
 
 const LogosStrip: React.FC = () => {
@@ -26,13 +25,13 @@ const LogosStrip: React.FC = () => {
               key={index}
                 className="flex-shrink-0"
               >
-                <Image
+                <img
                   src={image}
                   alt={`Parceiros Printbag ${index + 1}`}
                   width={1200}
                   height={200}
                   className="h-auto w-auto max-h-24 md:max-h-32 object-contain"
-                  unoptimized
+                  loading="lazy"
                 />
             </div>
           ))}

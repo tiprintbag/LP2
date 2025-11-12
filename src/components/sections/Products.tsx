@@ -1,7 +1,6 @@
 'use client'
 
 import React from 'react'
-import Image from 'next/image'
 import { getAssetPath } from '@/utils/paths'
 
 const Products: React.FC = () => {
@@ -18,14 +17,14 @@ const Products: React.FC = () => {
         </div>
       </div>
       <div className="w-full">
-          <Image
+          <img
             src={getAssetPath('/images/produtos.png')}
             alt="Produtos Printbag"
-          width={1920}
-          height={1080}
-          className="w-full h-auto object-cover"
-          unoptimized
-        />
+            width={1920}
+            height={1080}
+            className="w-full h-auto object-cover"
+            loading="lazy"
+          />
       </div>
     </section>
   )
