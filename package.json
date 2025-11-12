@@ -6,10 +6,12 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build && node scripts/copy-nojekyll.js",
+    "build:custom-domain": "cross-env USE_CUSTOM_DOMAIN=true next build && node scripts/copy-nojekyll.js",
     "start": "next start",
     "lint": "next lint",
     "predeploy": "npm run build",
-    "deploy": "gh-pages -d out"
+    "deploy": "gh-pages -d out",
+    "deploy:custom-domain": "npm run build:custom-domain && gh-pages -d out"
   },
   "dependencies": {
     "next": "^14.2.5",
@@ -21,6 +23,7 @@
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
     "autoprefixer": "^10.4.19",
+    "cross-env": "^10.1.0",
     "eslint": "^8.57.0",
     "eslint-config-next": "^14.2.5",
     "gh-pages": "^6.3.0",

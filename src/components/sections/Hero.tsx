@@ -2,6 +2,7 @@
 
 import React from 'react'
 import Image from 'next/image'
+import { getAssetPath } from '@/utils/paths'
 import Button from '@/components/ui/Button'
 
 const Hero: React.FC = () => {
@@ -62,7 +63,7 @@ const Hero: React.FC = () => {
           {/* Imagem de Produtos */}
           <div className="relative flex items-center justify-center w-full h-full overflow-visible max-w-2xl mx-auto lg:max-w-none">
             <Image
-              src="/LP2/images/weleda-2-transparent.png"
+              src={getAssetPath('/images/weleda-2-transparent.png')}
               alt="Enxoval de Produtos Printbag"
               width={2000}
               height={1500}

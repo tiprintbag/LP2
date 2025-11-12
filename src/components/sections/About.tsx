@@ -4,6 +4,7 @@ import React from 'react'
 import Card from '@/components/ui/Card'
 import Badge from '@/components/ui/Badge'
 import Button from '@/components/ui/Button'
+import { getAssetPath } from '@/utils/paths'
 
 const About: React.FC = () => {
   const scrollToSection = (id: string) => {
@@ -56,7 +57,7 @@ const About: React.FC = () => {
               className="w-full h-full object-cover rounded-xl"
             >
               <source 
-                src="/LP2/images/printhorizontal.mp4" 
+                src={getAssetPath('/images/printhorizontal.mp4')} 
                 type="video/mp4" 
               />
               Seu navegador não suporta o elemento de vídeo.

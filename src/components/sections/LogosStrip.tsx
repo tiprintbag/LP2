@@ -2,11 +2,12 @@
 
 import React from 'react'
 import Image from 'next/image'
+import { getAssetPath } from '@/utils/paths'
 
 const LogosStrip: React.FC = () => {
   const images = [
-    '/LP2/images/parceiros.png',
-    '/LP2/images/parceiros1.png',
+    getAssetPath('/images/parceiros.png'),
+    getAssetPath('/images/parceiros1.png'),
   ]
 
   // Duplicar as imagens para criar um loop infinito suave

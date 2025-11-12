@@ -2,6 +2,7 @@
 
 import React from 'react'
 import Image from 'next/image'
+import { getAssetPath } from '@/utils/paths'
 
 const Products: React.FC = () => {
   return (
@@ -18,7 +19,7 @@ const Products: React.FC = () => {
       </div>
       <div className="w-full">
           <Image
-            src="/LP2/images/produtos.png"
+            src={getAssetPath('/images/produtos.png')}
             alt="Produtos Printbag"
           width={1920}
           height={1080}
