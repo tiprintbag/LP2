@@ -60,13 +60,13 @@ const Hero: React.FC = () => {
           </div>
 
           {/* Imagem de Produtos - Alinhada com o "E" de Embalagem */}
-          <div className="relative flex items-start justify-center lg:justify-start w-full h-full overflow-visible">
+          <div className="relative flex items-start justify-center lg:justify-start w-full h-full overflow-visible pt-8 sm:pt-12 lg:pt-16 xl:pt-20">
             <img
               src={getAssetPath('/images/weleda-2-transparent.png')}
               alt="Enxoval de Produtos Printbag"
               width={2000}
               height={1500}
-              className="h-auto object-contain w-full max-w-2xl lg:max-w-3xl xl:max-w-4xl"
+              className="h-auto object-contain w-full max-w-3xl lg:max-w-4xl xl:max-w-5xl 2xl:max-w-6xl"
               style={{ 
                 filter: 'drop-shadow(0 10px 25px rgba(0, 0, 0, 0.1))',
                 maxHeight: 'calc(100vh - 8rem)',
