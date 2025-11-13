@@ -1,15 +1,21 @@
 const fs = require('fs');
 const path = require('path');
 
-const sourceFile = path.join(__dirname, '..', '.nojekyll');
-const destFile = path.join(__dirname, '..', 'out', '.nojekyll');
+const outDir = path.join(__dirname, '..', 'out');
 
 // Criar arquivo .nojekyll vazio na pasta out se não existir
-if (!fs.existsSync(destFile)) {
-  fs.writeFileSync(destFile, '');
+const nojekyllFile = path.join(outDir, '.nojekyll');
+if (!fs.existsSync(nojekyllFile)) {
+  fs.writeFileSync(nojekyllFile, '');
   console.log('✓ Arquivo .nojekyll criado em out/');
 } else {
   console.log('✓ Arquivo .nojekyll já existe em out/');
 }
+
+// Criar arquivo CNAME para domínio personalizado
+const cnameFile = path.join(outDir, 'CNAME');
+const cnameContent = 'www.embalagensprintbag.com.br';
+fs.writeFileSync(cnameFile, cnameContent);
+console.log('✓ Arquivo CNAME criado em out/ com domínio: www.embalagensprintbag.com.br');
 
 
