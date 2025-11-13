@@ -38,14 +38,13 @@ const Contact: React.FC = () => {
     })
   }
 
-  // Função para enviar para o webhook com timeout
+  // Função para enviar para o webhook em background (não bloqueia a UI)
   const sendToWebhook = async (data: typeof formData) => {
     const webhookUrl = 'https://ia-n8n.4xfwtv.easypanel.host/webhook/9bb8cab3-e473-4c6b-9faa-bfd68115c8b9'
-    const timeout = 10000 // 10 segundos
+    const timeout = 5000 // 5 segundos (reduzido para melhor performance)
 
     try {
       console.log('Enviando dados para webhook:', data)
-      console.log('URL do webhook:', webhookUrl)
 
       // Cria um AbortController para timeout
       const controller = new AbortController()
@@ -62,35 +61,20 @@ const Contact: React.FC = () => {
 
       clearTimeout(timeoutId)
 
-      console.log('Resposta do webhook - Status:', response.status)
-
       if (response.ok) {
-        let responseData
-        const contentType = response.headers.get('content-type')
-        if (contentType && contentType.includes('application/json')) {
-          responseData = await response.json()
-        } else {
-          const text = await response.text()
-          console.log('Resposta do webhook (texto):', text)
-          responseData = { message: text || 'Webhook recebido com sucesso' }
-        }
-        console.log('Dados recebidos do webhook:', responseData)
-        return { success: true, data: responseData }
+        console.log('Webhook recebido com sucesso')
+        return { success: true }
       } else {
         const errorText = await response.text()
         console.error('Erro na resposta do webhook:', errorText)
-        throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`)
+        return { success: false, error: `HTTP ${response.status}` }
       }
     } catch (error) {
       if (error instanceof Error && error.name === 'AbortError') {
-        console.error('Timeout ao enviar para webhook')
-        return { success: false, error: 'Tempo de espera esgotado. O servidor pode estar demorando para responder.' }
+        console.error('Timeout ao enviar para webhook (mas dados podem ter sido recebidos)')
+        return { success: false, error: 'Timeout' }
       }
       console.error('Erro ao enviar para webhook:', error)
-      console.error('Detalhes do erro:', {
-        message: error instanceof Error ? error.message : 'Erro desconhecido',
-        stack: error instanceof Error ? error.stack : undefined,
-      })
       return { success: false, error: error instanceof Error ? error.message : 'Erro desconhecido' }
     }
   }
@@ -99,77 +83,65 @@ const Contact: React.FC = () => {
     e.preventDefault()
     setIsSubmitting(true)
 
-    try {
-      // Prepara os dados do formulário
-      const dataToSend = {
-        nome: formData.nome.trim(),
-        email: formData.email.trim(),
-        empresa: formData.empresa.trim(),
-        telefone: formData.telefone.trim(),
-        lojas: formData.lojas,
-        segmento: formData.segmento,
-      }
-
-      console.log('Iniciando envio para webhook...')
-
-      // Envia para o webhook com dados de email incluídos
-      // O webhook n8n deve estar configurado para enviar emails quando receber esses dados
-      const webhookDataWithEmail = {
-        ...dataToSend,
-        // Informações para envio de email
-        emailNotification: {
-          to: ['PRINTBAGLP@printbag.com.br', 'pedro.levorato@weisul.com.br'],
-          subject: 'Nova Solicitação de Orçamento - Printbag',
-          html: `
-            <h2>Nova Solicitação de Orçamento</h2>
-            <p><strong>Nome:</strong> ${dataToSend.nome}</p>
-            <p><strong>E-mail:</strong> ${dataToSend.email}</p>
-            <p><strong>Empresa:</strong> ${dataToSend.empresa || 'Não informado'}</p>
-            <p><strong>Telefone/WhatsApp:</strong> ${dataToSend.telefone}</p>
-            <p><strong>Número de Lojas:</strong> ${dataToSend.lojas}</p>
-            <p><strong>Segmento:</strong> ${dataToSend.segmento}</p>
-            <hr>
-            <p><em>Enviado através do formulário de contato do site Printbag</em></p>
-          `,
-        },
-      }
-
-      // Envia para o webhook (que deve estar configurado para enviar emails)
-      const result = await sendToWebhook(webhookDataWithEmail as typeof formData)
-
-      console.log('Resultado do webhook:', result)
-
-      if (result.success) {
-        alert('Obrigado! Seus dados foram enviados com sucesso. Entraremos em contato em breve.')
-        // Limpa o formulário
-        setFormData({
-          nome: '',
-          email: '',
-          empresa: '',
-          telefone: '',
-          lojas: '1',
-          segmento: 'Moda e Vestuário',
-        })
-      } else {
-        // Mesmo com erro, mostra sucesso para o usuário (webhook pode ter recebido)
-        console.warn('Webhook retornou erro, mas pode ter recebido os dados:', result.error)
-        alert('Obrigado! Seus dados foram recebidos. Entraremos em contato em breve.')
-        // Limpa o formulário mesmo assim
-        setFormData({
-          nome: '',
-          email: '',
-          empresa: '',
-          telefone: '',
-          lojas: '1',
-          segmento: 'Moda e Vestuário',
-        })
-      }
-    } catch (error) {
-      console.error('Erro no envio:', error)
-      alert('Erro ao enviar os dados. Por favor, tente novamente ou entre em contato diretamente.')
-    } finally {
-      setIsSubmitting(false)
+    // Prepara os dados do formulário
+    const dataToSend = {
+      nome: formData.nome.trim(),
+      email: formData.email.trim(),
+      empresa: formData.empresa.trim(),
+      telefone: formData.telefone.trim(),
+      lojas: formData.lojas,
+      segmento: formData.segmento,
     }
+
+    // Envia para o webhook com dados de email incluídos
+    // O webhook n8n deve estar configurado para enviar emails quando receber esses dados
+    const webhookDataWithEmail = {
+      ...dataToSend,
+      // Informações para envio de email
+      emailNotification: {
+        to: ['PRINTBAGLP@printbag.com.br', 'pedro.levorato@weisul.com.br'],
+        subject: 'Nova Solicitação de Orçamento - Printbag',
+        html: `
+          <h2>Nova Solicitação de Orçamento</h2>
+          <p><strong>Nome:</strong> ${dataToSend.nome}</p>
+          <p><strong>E-mail:</strong> ${dataToSend.email}</p>
+          <p><strong>Empresa:</strong> ${dataToSend.empresa || 'Não informado'}</p>
+          <p><strong>Telefone/WhatsApp:</strong> ${dataToSend.telefone}</p>
+          <p><strong>Número de Lojas:</strong> ${dataToSend.lojas}</p>
+          <p><strong>Segmento:</strong> ${dataToSend.segmento}</p>
+          <hr>
+          <p><em>Enviado através do formulário de contato do site Printbag</em></p>
+        `,
+      },
+    }
+
+    // Mostra feedback imediato ao usuário (não espera o webhook)
+    alert('Obrigado! Seus dados foram enviados com sucesso. Entraremos em contato em breve.')
+    
+    // Limpa o formulário imediatamente
+    setFormData({
+      nome: '',
+      email: '',
+      empresa: '',
+      telefone: '',
+      lojas: '1',
+      segmento: 'Moda e Vestuário',
+    })
+    
+    setIsSubmitting(false)
+
+    // Envia para o webhook em background (não bloqueia a UI)
+    sendToWebhook(webhookDataWithEmail as typeof formData)
+      .then((result) => {
+        if (result.success) {
+          console.log('✅ Dados enviados com sucesso para o webhook')
+        } else {
+          console.warn('⚠ Webhook pode ter recebido os dados mesmo com erro:', result.error)
+        }
+      })
+      .catch((error) => {
+        console.error('❌ Erro ao enviar para webhook (mas formulário já foi limpo):', error)
+      })
   }
 
   return (
