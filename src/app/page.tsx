@@ -9,14 +9,14 @@ import { getAssetPath } from '@/utils/paths'
 export default function Home() {
   return (
     <>
-      {/* Logo Printbag no topo esquerdo */}
-      <section className="w-full bg-white py-2 sm:py-2 lg:py-3">
+      {/* Logo Printbag alinhado com o "E" de Embalagens */}
+      <section className="w-full bg-white py-0">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
           <div className="flex justify-start items-center">
             <img
               src={getAssetPath('/images/printbag.png')}
               alt="Printbag Logo"
-              className="h-6 sm:h-8 md:h-10 lg:h-12 w-auto object-contain"
+              className="h-10 sm:h-12 md:h-16 lg:h-20 xl:h-24 w-auto object-contain"
               loading="eager"
             />
           </div>

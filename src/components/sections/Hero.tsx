@@ -13,7 +13,7 @@ const Hero: React.FC = () => {
   }
 
   return (
-    <section id="home" className="min-h-screen flex items-start pt-4 sm:pt-6 lg:pt-8 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-white via-primary-50/30 to-blue-50/30">
+    <section id="home" className="min-h-screen flex items-start pt-2 sm:pt-3 lg:pt-4 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-white via-primary-50/30 to-blue-50/30">
       <div className="container mx-auto w-full max-w-7xl 2xl:max-w-7xl">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 items-start">
           {/* Text Content */}
