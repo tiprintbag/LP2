@@ -12,3 +12,4 @@ if (!fs.existsSync(destFile)) {
   console.log('✓ Arquivo .nojekyll já existe em out/');
 }
 
+
