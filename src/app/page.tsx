@@ -10,7 +10,7 @@ export default function Home() {
   return (
     <>
       {/* Logo Printbag no topo esquerdo */}
-      <section className="w-full bg-white py-2 sm:py-3 lg:py-4">
+      <section className="w-full bg-white py-2 sm:py-2 lg:py-3">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
           <div className="flex justify-start items-center">
             <img
