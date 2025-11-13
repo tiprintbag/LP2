@@ -66,7 +66,7 @@ const Hero: React.FC = () => {
               alt="Enxoval de Produtos Printbag"
               width={2000}
               height={1500}
-              className="h-auto object-contain w-full max-w-4xl lg:max-w-5xl xl:max-w-6xl 2xl:max-w-7xl"
+              className="h-auto object-contain w-full max-w-5xl lg:max-w-6xl xl:max-w-7xl 2xl:max-w-[90rem]"
               style={{ 
                 filter: 'drop-shadow(0 10px 25px rgba(0, 0, 0, 0.1))',
                 maxHeight: 'calc(100vh - 8rem)',
