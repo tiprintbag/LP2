@@ -28,10 +28,14 @@ function processDirectory(dir) {
       let content = fs.readFileSync(filePath, 'utf8');
       
       // Substituir /LP2/images/ por /images/
-      // Substituir /LP2/_next/ por /_next/ (caso ainda tenha)
+      // Substituir /LP2/_next/ por /_next/ (incluindo CSS e JS)
+      // Substituir /LP2/favicon por /favicon
       const originalContent = content;
       content = content.replace(/\/LP2\/images\//g, '/images/');
       content = content.replace(/\/LP2\/_next\//g, '/_next/');
+      content = content.replace(/\/LP2\/favicon/g, '/favicon');
+      content = content.replace(/href="\/LP2\//g, 'href="/');
+      content = content.replace(/src="\/LP2\//g, 'src="/');
       
       // Se houve mudanças, escrever o arquivo
       if (content !== originalContent) {
