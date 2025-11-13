@@ -16,7 +16,7 @@ export default function Home() {
             <img
               src={getAssetPath('/images/printbag.png')}
               alt="Printbag Logo"
-              className="h-10 sm:h-12 md:h-16 lg:h-20 xl:h-24 w-auto object-contain"
+              className="h-6 sm:h-8 md:h-10 lg:h-12 xl:h-14 w-auto object-contain"
               loading="eager"
             />
           </div>
