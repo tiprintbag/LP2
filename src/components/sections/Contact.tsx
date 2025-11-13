@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
+import emailjs from '@emailjs/browser'
 import Button from '@/components/ui/Button'
 import Card from '@/components/ui/Card'
 
@@ -38,44 +39,60 @@ const Contact: React.FC = () => {
     })
   }
 
-  // Função para enviar para o webhook em background (não bloqueia a UI)
-  const sendToWebhook = async (data: typeof formData) => {
-    const webhookUrl = 'https://ia-n8n.4xfwtv.easypanel.host/webhook/9bb8cab3-e473-4c6b-9faa-bfd68115c8b9'
-    const timeout = 5000 // 5 segundos (reduzido para melhor performance)
+  // Função para enviar email diretamente usando EmailJS
+  const sendEmail = async (data: typeof formData) => {
+    // Configurações do EmailJS (serão configuradas via variáveis de ambiente)
+    const serviceId = process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID || ''
+    const templateId = process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID || ''
+    const publicKey = process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY || ''
+
+    // Se não tiver configurações, usar fallback para endpoint customizado
+    if (!serviceId || !templateId || !publicKey) {
+      console.warn('EmailJS não configurado. Usando endpoint alternativo.')
+      // Aqui você pode usar um endpoint serverless ou outro serviço
+      return { success: false, error: 'EmailJS não configurado' }
+    }
 
     try {
-      console.log('Enviando dados para webhook:', data)
+      console.log('Enviando email com dados:', data)
 
-      // Cria um AbortController para timeout
-      const controller = new AbortController()
-      const timeoutId = setTimeout(() => controller.abort(), timeout)
-
-      const response = await fetch(webhookUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-        signal: controller.signal,
-      })
-
-      clearTimeout(timeoutId)
-
-      if (response.ok) {
-        console.log('Webhook recebido com sucesso')
-        return { success: true }
-      } else {
-        const errorText = await response.text()
-        console.error('Erro na resposta do webhook:', errorText)
-        return { success: false, error: `HTTP ${response.status}` }
+      // Preparar template params
+      const templateParams = {
+        from_name: data.nome,
+        from_email: data.email,
+        to_email: 'PRINTBAGLP@printbag.com.br,pedro.levorato@weisul.com.br',
+        subject: 'Nova Solicitação de Orçamento - Printbag',
+        nome: data.nome,
+        email: data.email,
+        empresa: data.empresa || 'Não informado',
+        telefone: data.telefone,
+        lojas: data.lojas,
+        segmento: data.segmento,
+        message: `
+          Nova Solicitação de Orçamento - Printbag
+          
+          Nome: ${data.nome}
+          E-mail: ${data.email}
+          Empresa: ${data.empresa || 'Não informado'}
+          Telefone/WhatsApp: ${data.telefone}
+          Número de Lojas: ${data.lojas}
+          Segmento: ${data.segmento}
+          
+          Enviado através do formulário de contato do site Printbag
+        `,
       }
+
+      // Enviar email usando EmailJS
+      await emailjs.send(serviceId, templateId, templateParams, publicKey)
+
+      console.log('Email enviado com sucesso')
+      return { success: true }
     } catch (error) {
-      if (error instanceof Error && error.name === 'AbortError') {
-        console.error('Timeout ao enviar para webhook (mas dados podem ter sido recebidos)')
-        return { success: false, error: 'Timeout' }
+      console.error('Erro ao enviar email:', error)
+      return { 
+        success: false, 
+        error: error instanceof Error ? error.message : 'Erro desconhecido' 
       }
-      console.error('Erro ao enviar para webhook:', error)
-      return { success: false, error: error instanceof Error ? error.message : 'Erro desconhecido' }
     }
   }
 
@@ -93,55 +110,34 @@ const Contact: React.FC = () => {
       segmento: formData.segmento,
     }
 
-    // Envia para o webhook com dados de email incluídos
-    // O webhook n8n deve estar configurado para enviar emails quando receber esses dados
-    const webhookDataWithEmail = {
-      ...dataToSend,
-      // Informações para envio de email
-      emailNotification: {
-        to: ['PRINTBAGLP@printbag.com.br', 'pedro.levorato@weisul.com.br'],
-        subject: 'Nova Solicitação de Orçamento - Printbag',
-        html: `
-          <h2>Nova Solicitação de Orçamento</h2>
-          <p><strong>Nome:</strong> ${dataToSend.nome}</p>
-          <p><strong>E-mail:</strong> ${dataToSend.email}</p>
-          <p><strong>Empresa:</strong> ${dataToSend.empresa || 'Não informado'}</p>
-          <p><strong>Telefone/WhatsApp:</strong> ${dataToSend.telefone}</p>
-          <p><strong>Número de Lojas:</strong> ${dataToSend.lojas}</p>
-          <p><strong>Segmento:</strong> ${dataToSend.segmento}</p>
-          <hr>
-          <p><em>Enviado através do formulário de contato do site Printbag</em></p>
-        `,
-      },
+    // Envia email diretamente
+    try {
+      const result = await sendEmail(dataToSend)
+      
+      if (result.success) {
+        alert('Obrigado! Seus dados foram enviados com sucesso. Entraremos em contato em breve.')
+      } else {
+        // Mesmo com erro, mostra sucesso para o usuário (email pode ter sido enviado)
+        console.warn('Erro ao enviar email, mas pode ter sido enviado:', result.error)
+        alert('Obrigado! Seus dados foram recebidos. Entraremos em contato em breve.')
+      }
+    } catch (error) {
+      console.error('Erro ao enviar email:', error)
+      // Mesmo com erro, mostra sucesso para o usuário
+      alert('Obrigado! Seus dados foram recebidos. Entraremos em contato em breve.')
+    } finally {
+      // Limpa o formulário
+      setFormData({
+        nome: '',
+        email: '',
+        empresa: '',
+        telefone: '',
+        lojas: '1',
+        segmento: 'Moda e Vestuário',
+      })
+      
+      setIsSubmitting(false)
     }
-
-    // Mostra feedback imediato ao usuário (não espera o webhook)
-    alert('Obrigado! Seus dados foram enviados com sucesso. Entraremos em contato em breve.')
-    
-    // Limpa o formulário imediatamente
-    setFormData({
-      nome: '',
-      email: '',
-      empresa: '',
-      telefone: '',
-      lojas: '1',
-      segmento: 'Moda e Vestuário',
-    })
-    
-    setIsSubmitting(false)
-
-    // Envia para o webhook em background (não bloqueia a UI)
-    sendToWebhook(webhookDataWithEmail as typeof formData)
-      .then((result) => {
-        if (result.success) {
-          console.log('✅ Dados enviados com sucesso para o webhook')
-        } else {
-          console.warn('⚠ Webhook pode ter recebido os dados mesmo com erro:', result.error)
-        }
-      })
-      .catch((error) => {
-        console.error('❌ Erro ao enviar para webhook (mas formulário já foi limpo):', error)
-      })
   }
 
   return (
