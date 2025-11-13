@@ -112,8 +112,30 @@ const Contact: React.FC = () => {
 
       console.log('Iniciando envio para webhook...')
 
-      // Envia para o webhook
-      const result = await sendToWebhook(dataToSend)
+      // Envia para o webhook com dados de email incluídos
+      // O webhook n8n deve estar configurado para enviar emails quando receber esses dados
+      const webhookDataWithEmail = {
+        ...dataToSend,
+        // Informações para envio de email
+        emailNotification: {
+          to: ['PRINTBAGLP@printbag.com.br', 'pedro.levorato@weisul.com.br'],
+          subject: 'Nova Solicitação de Orçamento - Printbag',
+          html: `
+            <h2>Nova Solicitação de Orçamento</h2>
+            <p><strong>Nome:</strong> ${dataToSend.nome}</p>
+            <p><strong>E-mail:</strong> ${dataToSend.email}</p>
+            <p><strong>Empresa:</strong> ${dataToSend.empresa || 'Não informado'}</p>
+            <p><strong>Telefone/WhatsApp:</strong> ${dataToSend.telefone}</p>
+            <p><strong>Número de Lojas:</strong> ${dataToSend.lojas}</p>
+            <p><strong>Segmento:</strong> ${dataToSend.segmento}</p>
+            <hr>
+            <p><em>Enviado através do formulário de contato do site Printbag</em></p>
+          `,
+        },
+      }
+
+      // Envia para o webhook (que deve estar configurado para enviar emails)
+      const result = await sendToWebhook(webhookDataWithEmail as typeof formData)
 
       console.log('Resultado do webhook:', result)
 
