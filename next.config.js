@@ -14,6 +14,10 @@ const nextConfig = {
   env: {
     NEXT_PUBLIC_USE_CUSTOM_DOMAIN: process.env.USE_CUSTOM_DOMAIN || 'false',
     NEXT_PUBLIC_BASE_PATH: process.env.USE_CUSTOM_DOMAIN === 'true' ? '' : '/LP2',
+    // EmailJS Configuration
+    NEXT_PUBLIC_EMAILJS_SERVICE_ID: process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID || 'service_5l5z60l',
+    NEXT_PUBLIC_EMAILJS_TEMPLATE_ID: process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID || 'template_vmalf5b',
+    NEXT_PUBLIC_EMAILJS_PUBLIC_KEY: process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY || 'YY----laYSqdMEPFs',
   },
 }
 

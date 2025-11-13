@@ -56,30 +56,14 @@ const Contact: React.FC = () => {
     try {
       console.log('Enviando email com dados:', data)
 
-      // Preparar template params
+      // Preparar template params - dados simples do formulário
       const templateParams = {
-        from_name: data.nome,
-        from_email: data.email,
-        to_email: 'PRINTBAGLP@printbag.com.br,pedro.levorato@weisul.com.br',
-        subject: 'Nova Solicitação de Orçamento - Printbag',
         nome: data.nome,
         email: data.email,
         empresa: data.empresa || 'Não informado',
         telefone: data.telefone,
         lojas: data.lojas,
         segmento: data.segmento,
-        message: `
-          Nova Solicitação de Orçamento - Printbag
-          
-          Nome: ${data.nome}
-          E-mail: ${data.email}
-          Empresa: ${data.empresa || 'Não informado'}
-          Telefone/WhatsApp: ${data.telefone}
-          Número de Lojas: ${data.lojas}
-          Segmento: ${data.segmento}
-          
-          Enviado através do formulário de contato do site Printbag
-        `,
       }
 
       // Enviar email usando EmailJS
