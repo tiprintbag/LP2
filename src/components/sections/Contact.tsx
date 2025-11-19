@@ -80,6 +80,47 @@ const Contact: React.FC = () => {
     }
   }
 
+  // Função para enviar dados para o webhook n8n
+  const sendToWebhook = async (data: typeof formData) => {
+    const webhookUrl = 'https://weisul-n8n.sburs0.easypanel.host/webhook/391ee2df-11e9-457e-9865-14c19f422f6d'
+    const timeout = 5000 // 5 segundos
+
+    try {
+      console.log('Enviando dados para webhook n8n:', data)
+
+      // Cria um AbortController para timeout
+      const controller = new AbortController()
+      const timeoutId = setTimeout(() => controller.abort(), timeout)
+
+      const response = await fetch(webhookUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+        signal: controller.signal,
+      })
+
+      clearTimeout(timeoutId)
+
+      if (response.ok) {
+        console.log('Webhook n8n recebido com sucesso')
+        return { success: true }
+      } else {
+        const errorText = await response.text()
+        console.error('Erro na resposta do webhook:', errorText)
+        return { success: false, error: `HTTP ${response.status}` }
+      }
+    } catch (error) {
+      if (error instanceof Error && error.name === 'AbortError') {
+        console.error('Timeout ao enviar para webhook (mas dados podem ter sido recebidos)')
+        return { success: false, error: 'Timeout' }
+      }
+      console.error('Erro ao enviar para webhook:', error)
+      return { success: false, error: error instanceof Error ? error.message : 'Erro desconhecido' }
+    }
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsSubmitting(true)
@@ -94,19 +135,30 @@ const Contact: React.FC = () => {
       segmento: formData.segmento,
     }
 
-    // Envia email diretamente
+    // Envia email e webhook em paralelo
     try {
-      const result = await sendEmail(dataToSend)
-      
-      if (result.success) {
+      // Envia email e webhook simultaneamente (não bloqueia a UI)
+      const [emailResult, webhookResult] = await Promise.allSettled([
+        sendEmail(dataToSend),
+        sendToWebhook(dataToSend),
+      ])
+
+      // Verifica resultados
+      const emailSuccess = emailResult.status === 'fulfilled' && emailResult.value.success
+      const webhookSuccess = webhookResult.status === 'fulfilled' && webhookResult.value.success
+
+      if (emailSuccess || webhookSuccess) {
         alert('Obrigado! Seus dados foram enviados com sucesso. Entraremos em contato em breve.')
       } else {
-        // Mesmo com erro, mostra sucesso para o usuário (email pode ter sido enviado)
-        console.warn('Erro ao enviar email, mas pode ter sido enviado:', result.error)
+        // Mesmo com erro, mostra sucesso para o usuário (dados podem ter sido enviados)
+        console.warn('Alguns envios falharam, mas dados podem ter sido recebidos:', {
+          email: emailResult.status === 'fulfilled' ? emailResult.value.error : emailResult.reason,
+          webhook: webhookResult.status === 'fulfilled' ? webhookResult.value.error : webhookResult.reason,
+        })
         alert('Obrigado! Seus dados foram recebidos. Entraremos em contato em breve.')
       }
     } catch (error) {
-      console.error('Erro ao enviar email:', error)
+      console.error('Erro ao enviar dados:', error)
       // Mesmo com erro, mostra sucesso para o usuário
       alert('Obrigado! Seus dados foram recebidos. Entraremos em contato em breve.')
     } finally {
