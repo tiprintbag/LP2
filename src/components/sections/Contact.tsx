@@ -79,7 +79,7 @@ const Contact: React.FC = () => {
 
   // Função para enviar dados para o webhook n8n
   const sendToWebhook = async (data: typeof formData) => {
-    const webhookUrl = 'https://weisul-n8n.sburs0.easypanel.host/webhook/391ee2df-11e9-457e-9865-14c19f422f6d'
+    const webhookUrl = 'https://weisul-n8n.sburs0.easypanel.host/webhook-test/391ee2df-11e9-457e-9865-14c19f422f6d'
 
     try {
       console.log('Enviando dados para webhook:', data)
