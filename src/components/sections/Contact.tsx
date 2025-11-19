@@ -79,18 +79,30 @@ const Contact: React.FC = () => {
 
   // Função para enviar dados para o webhook n8n
   const sendToWebhook = async (data: typeof formData) => {
-    const webhookUrl = 'https://weisul-n8n.sburs0.easypanel.host/webhook-test/391ee2df-11e9-457e-9865-14c19f422f6d'
+    const webhookUrl = 'https://weisul-n8n.sburs0.easypanel.host/webhook/391ee2df-11e9-457e-9865-14c19f422f6d'
 
     try {
       console.log('Enviando dados para webhook:', data)
       console.log('URL do webhook:', webhookUrl)
 
+      // Preparar dados no formato exato que o webhook espera
+      const formDataToSend = {
+        nome: data.nome.trim(),
+        email: data.email.trim(),
+        empresa: data.empresa.trim(),
+        telefone: data.telefone.trim(),
+        lojas: data.lojas,
+        segmento: data.segmento
+      }
+
       const response = await fetch(webhookUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Accept': 'application/json',
         },
-        body: JSON.stringify(data)
+        mode: 'cors',
+        body: JSON.stringify(formDataToSend)
       })
 
       console.log('Resposta do webhook - Status:', response.status)
