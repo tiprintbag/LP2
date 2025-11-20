@@ -42,20 +42,29 @@ const Contact: React.FC = () => {
 
   // Função para enviar email diretamente usando EmailJS
   const sendEmail = async (data: typeof formData) => {
+    console.log('=== FUNÇÃO sendEmail CHAMADA ===')
+    
     // Configurações do EmailJS (serão configuradas via variáveis de ambiente)
     const serviceId = process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID || ''
     const templateId = process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID || ''
     const publicKey = process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY || ''
 
+    console.log('=== CONFIGURAÇÃO EMAILJS ===')
+    console.log('Service ID:', serviceId || 'VAZIO')
+    console.log('Template ID:', templateId || 'VAZIO')
+    console.log('Public Key:', publicKey ? `${publicKey.substring(0, 10)}...` : 'VAZIO')
+    console.log('Service ID completo:', serviceId)
+    console.log('Template ID completo:', templateId)
+
     // Se não tiver configurações, usar fallback para endpoint customizado
     if (!serviceId || !templateId || !publicKey) {
-      console.warn('EmailJS não configurado. Usando endpoint alternativo.')
-      // Aqui você pode usar um endpoint serverless ou outro serviço
+      console.warn('EmailJS não configurado. Verifique as variáveis de ambiente NEXT_PUBLIC_EMAILJS_*')
       return false
     }
 
     try {
-      console.log('Enviando email com dados:', data)
+      console.log('=== ENVIANDO EMAIL VIA EMAILJS ===')
+      console.log('Dados a enviar:', data)
 
       // Preparar template params - dados simples do formulário
       const templateParams = {
@@ -67,13 +76,22 @@ const Contact: React.FC = () => {
         segmento: data.segmento,
       }
 
-      // Enviar email usando EmailJS
-      await emailjs.send(serviceId, templateId, templateParams, publicKey)
+      console.log('Template params:', templateParams)
 
-      console.log('Email enviado com sucesso')
+      // Enviar email usando EmailJS
+      const result = await emailjs.send(serviceId, templateId, templateParams, publicKey)
+
+      console.log('Email enviado com sucesso via EmailJS:', result)
       return true
     } catch (error) {
-      console.error('Erro ao enviar email:', error)
+      console.error('Erro ao enviar email via EmailJS:', error)
+      if (error instanceof Error) {
+        console.error('Detalhes do erro:', {
+          message: error.message,
+          status: (error as any).status,
+          text: (error as any).text
+        })
+      }
       return false
     }
   }
@@ -98,6 +116,7 @@ const Contact: React.FC = () => {
       }
 
       console.log('Dados formatados:', formDataToSend)
+      console.log('JSON stringificado:', JSON.stringify(formDataToSend))
 
       // Criar um AbortController para timeout
       const controller = new AbortController()
@@ -242,15 +261,31 @@ const Contact: React.FC = () => {
 
     // Envia email e webhook em paralelo
     try {
+      console.log('=== INICIANDO ENVIO DE EMAIL E WEBHOOK ===')
+      console.log('Chamando sendEmail e sendToWebhook...')
+      
       // Envia email e webhook simultaneamente (não bloqueia a UI)
+      const emailPromise = sendEmail(dataToSend)
+      const webhookPromise = sendToWebhook(dataToSend)
+      
+      console.log('Promises criadas, aguardando resultados...')
+      
       const [emailResult, webhookResult] = await Promise.allSettled([
-        sendEmail(dataToSend),
-        sendToWebhook(dataToSend),
+        emailPromise,
+        webhookPromise,
       ])
+
+      console.log('=== RESULTADOS ===')
+      console.log('Email Result Status:', emailResult.status)
+      console.log('Email Result Value:', emailResult.status === 'fulfilled' ? emailResult.value : emailResult.reason)
+      console.log('Webhook Result:', webhookResult)
 
       // Verifica resultados
       const emailSuccess = emailResult.status === 'fulfilled' && emailResult.value === true
       const webhookSuccess = webhookResult.status === 'fulfilled' && webhookResult.value.success === true
+      
+      console.log('Email Success:', emailSuccess)
+      console.log('Webhook Success:', webhookSuccess)
 
       if (webhookSuccess || emailSuccess) {
         // Sucesso - mostra mensagem positiva (se pelo menos um funcionou)

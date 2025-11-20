@@ -14,8 +14,8 @@ if (!fs.existsSync(nojekyllFile)) {
 
 // Criar arquivo CNAME para domínio personalizado
 const cnameFile = path.join(outDir, 'CNAME');
-const cnameContent = 'www.embalagensprintbag.com.br';
+const cnameContent = 'www.embalagensprintbag.com';
 fs.writeFileSync(cnameFile, cnameContent);
-console.log('✓ Arquivo CNAME criado em out/ com domínio: www.embalagensprintbag.com.br');
+console.log('✓ Arquivo CNAME criado em out/ com domínio: www.embalagensprintbag.com');
 
 
