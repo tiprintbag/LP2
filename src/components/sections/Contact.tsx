@@ -15,6 +15,7 @@ const Contact: React.FC = () => {
     segmento: 'Moda e Vestuário',
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setFormData({
@@ -82,63 +83,142 @@ const Contact: React.FC = () => {
     const webhookUrl = 'https://weisul-n8n.sburs0.easypanel.host/webhook/391ee2df-11e9-457e-9865-14c19f422f6d'
 
     try {
-      console.log('Enviando dados para webhook:', data)
+      console.log('=== ENVIANDO PARA WEBHOOK ===')
       console.log('URL do webhook:', webhookUrl)
+      console.log('Dados a enviar:', data)
 
       // Preparar dados no formato exato que o webhook espera
       const formDataToSend = {
         nome: data.nome.trim(),
         email: data.email.trim(),
-        empresa: data.empresa.trim(),
+        empresa: data.empresa.trim() || '',
         telefone: data.telefone.trim(),
         lojas: data.lojas,
         segmento: data.segmento
       }
 
-      const response = await fetch(webhookUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
-        mode: 'cors',
-        body: JSON.stringify(formDataToSend)
-      })
+      console.log('Dados formatados:', formDataToSend)
 
-      console.log('Resposta do webhook - Status:', response.status)
-      console.log('Resposta do webhook - Headers:', response.headers)
+      // Criar um AbortController para timeout
+      const controller = new AbortController()
+      const timeoutId = setTimeout(() => controller.abort(), 30000) // 30 segundos de timeout
 
-      // Alguns webhooks retornam 200 mesmo sem JSON
-      if (response.ok) {
-        let responseData
-        const contentType = response.headers.get('content-type')
-        if (contentType && contentType.includes('application/json')) {
-          responseData = await response.json()
+      let response
+      try {
+        // Tentar primeiro sem mode cors explícito (usa no-cors como fallback)
+        response = await fetch(webhookUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(formDataToSend),
+          signal: controller.signal
+        })
+      } catch (fetchError) {
+        console.error('Erro na requisição fetch:', fetchError)
+        clearTimeout(timeoutId)
+        
+        // Se for erro de CORS ou rede, tentar com no-cors (mas não conseguiremos ler a resposta)
+        if (fetchError instanceof TypeError) {
+          const errorMsg = fetchError.message
+          console.error('Tipo de erro:', errorMsg)
+          
+          // Tentar uma última vez sem headers complexos
+          try {
+            console.log('Tentando requisição alternativa...')
+            response = await fetch(webhookUrl, {
+              method: 'POST',
+              body: JSON.stringify(formDataToSend),
+              signal: controller.signal
+            })
+            console.log('Requisição alternativa funcionou!')
+          } catch (retryError) {
+            console.error('Requisição alternativa também falhou:', retryError)
+            if (errorMsg.includes('Failed to fetch') || errorMsg.includes('NetworkError')) {
+              throw new Error('Erro de conexão. Verifique sua conexão com a internet e se o webhook está acessível.')
+            } else {
+              throw new Error(`Erro de rede: ${errorMsg}. O webhook pode não estar configurado para aceitar requisições do localhost.`)
+            }
+          }
         } else {
-          const text = await response.text()
-          console.log('Resposta do webhook (texto):', text)
-          responseData = { message: text || 'Webhook recebido com sucesso' }
+          throw fetchError
         }
-        console.log('Dados recebidos do webhook:', responseData)
+      }
+
+      clearTimeout(timeoutId)
+
+      console.log('Resposta recebida - Status:', response.status)
+      console.log('Resposta recebida - OK:', response.ok)
+      console.log('Headers da resposta:', Object.fromEntries(response.headers.entries()))
+
+      // Verificar se a resposta foi bem-sucedida
+      if (response.ok || response.status === 200 || response.status === 201) {
+        let responseData
+        try {
+          const contentType = response.headers.get('content-type')
+          console.log('Content-Type:', contentType)
+          
+          if (contentType && contentType.includes('application/json')) {
+            responseData = await response.json()
+            console.log('Resposta JSON:', responseData)
+          } else {
+            const text = await response.text()
+            console.log('Resposta texto:', text)
+            responseData = { message: text || 'Webhook recebido com sucesso' }
+          }
+        } catch (parseError) {
+          // Se não conseguir fazer parse, ainda considera sucesso se status for 200
+          console.log('Resposta do webhook recebida (sem parse JSON)')
+          responseData = { message: 'Webhook recebido com sucesso' }
+        }
+        console.log('=== WEBHOOK ENVIADO COM SUCESSO ===')
         return { success: true, data: responseData }
       } else {
-        const errorText = await response.text()
+        const errorText = await response.text().catch(() => 'Erro desconhecido')
         console.error('Erro na resposta do webhook:', errorText)
         throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`)
       }
     } catch (error) {
+      if (error instanceof Error && error.name === 'AbortError') {
+        console.error('Timeout ao enviar para webhook')
+        return { success: false, error: 'Tempo de espera esgotado. Por favor, tente novamente.' }
+      }
       console.error('Erro ao enviar para webhook:', error)
       console.error('Detalhes do erro:', {
+        name: error instanceof Error ? error.name : 'Unknown',
         message: error instanceof Error ? error.message : 'Erro desconhecido',
         stack: error instanceof Error ? error.stack : undefined
       })
-      return { success: false, error: error instanceof Error ? error.message : 'Erro desconhecido' }
+      
+      // Mensagem de erro mais amigável
+      let errorMessage = 'Erro ao enviar os dados. '
+      if (error instanceof Error) {
+        if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
+          errorMessage += 'Verifique sua conexão com a internet e tente novamente.'
+        } else if (error.message.includes('CORS') || error.message.includes('cors')) {
+          errorMessage += 'Erro de configuração do servidor. Entre em contato com o suporte.'
+        } else {
+          errorMessage += error.message
+        }
+      } else {
+        errorMessage += 'Por favor, tente novamente.'
+      }
+      
+      return { success: false, error: errorMessage }
     }
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    e.stopPropagation()
+    
+    // Prevenir scroll automático
+    const formElement = e.currentTarget as HTMLFormElement
+    const formRect = formElement.getBoundingClientRect()
+    const scrollPosition = window.scrollY
+    
     setIsSubmitting(true)
+    setMessage(null)
 
     // Prepara os dados do formulário
     const dataToSend = {
@@ -149,6 +229,16 @@ const Contact: React.FC = () => {
       lojas: formData.lojas,
       segmento: formData.segmento,
     }
+
+    // Validação básica
+    if (!dataToSend.nome || !dataToSend.email || !dataToSend.telefone) {
+      setMessage({ type: 'error', text: 'Por favor, preencha todos os campos obrigatórios.' })
+      setIsSubmitting(false)
+      return
+    }
+
+    console.log('=== INÍCIO DO ENVIO ===')
+    console.log('Dados a serem enviados:', dataToSend)
 
     // Envia email e webhook em paralelo
     try {
@@ -162,31 +252,41 @@ const Contact: React.FC = () => {
       const emailSuccess = emailResult.status === 'fulfilled' && emailResult.value === true
       const webhookSuccess = webhookResult.status === 'fulfilled' && webhookResult.value.success === true
 
-      if (webhookSuccess) {
-        // Sucesso - mostra mensagem positiva
-        alert('Obrigado! Seus dados foram enviados com sucesso. Entraremos em contato em breve.')
-      } else if (emailSuccess) {
-        // Email enviado, mas webhook falhou
-        alert('Seus dados foram recebidos. Entraremos em contato em breve.')
+      if (webhookSuccess || emailSuccess) {
+        // Sucesso - mostra mensagem positiva (se pelo menos um funcionou)
+        setMessage({ type: 'success', text: 'Obrigado! Seus dados foram enviados com sucesso. Entraremos em contato em breve.' })
+        
+        // Limpa o formulário apenas em caso de sucesso
+        setFormData({
+          nome: '',
+          email: '',
+          empresa: '',
+          telefone: '',
+          lojas: '1',
+          segmento: 'Moda e Vestuário',
+        })
+        
+        // Manter posição do scroll
+        setTimeout(() => {
+          window.scrollTo(0, scrollPosition)
+        }, 100)
       } else {
         // Ambos falharam
-        throw new Error('Erro ao enviar dados. Por favor, tente novamente.')
+        const emailError = emailResult.status === 'rejected' ? emailResult.reason : null
+        const webhookError = webhookResult.status === 'rejected' ? webhookResult.reason : 
+                            (webhookResult.status === 'fulfilled' ? webhookResult.value.error : null)
+        
+        const errorMsg = webhookError || emailError || 'Erro ao enviar dados. Por favor, tente novamente.'
+        console.error('Erro no envio:', { emailError, webhookError })
+        setMessage({ type: 'error', text: errorMsg })
       }
     } catch (error) {
       console.error('Erro no envio:', error)
-      alert('Erro ao enviar os dados. Por favor, tente novamente ou entre em contato diretamente.')
+      const errorMsg = error instanceof Error ? error.message : 'Erro ao enviar os dados. Por favor, tente novamente ou entre em contato diretamente.'
+      setMessage({ type: 'error', text: errorMsg })
     } finally {
-      // Limpa o formulário
-      setFormData({
-        nome: '',
-        email: '',
-        empresa: '',
-        telefone: '',
-        lojas: '1',
-        segmento: 'Moda e Vestuário',
-      })
-      
       setIsSubmitting(false)
+      console.log('=== FIM DO ENVIO ===')
     }
   }
 
@@ -208,7 +308,16 @@ const Contact: React.FC = () => {
             <h3 className="text-2xl font-semibold text-gray-900 mb-6">
               Solicitar Orçamento
             </h3>
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form onSubmit={handleSubmit} className="space-y-6" noValidate>
+              {message && (
+                <div className={`p-4 rounded-lg ${
+                  message.type === 'success' 
+                    ? 'bg-green-50 border border-green-200 text-green-800' 
+                    : 'bg-red-50 border border-red-200 text-red-800'
+                }`}>
+                  <p className="font-medium">{message.text}</p>
+                </div>
+              )}
               <div>
                 <label htmlFor="nome" className="block text-sm font-medium text-gray-700 mb-2">
                   Nome *
@@ -307,12 +416,19 @@ const Contact: React.FC = () => {
                 </select>
               </div>
 
-              <Button 
-                type="submit" 
-                variant="primary" 
-                size="lg" 
+              <Button
+                type="submit"
+                variant="primary"
+                size="lg"
                 className="w-full"
                 disabled={isSubmitting}
+                onClick={(e) => {
+                  // Garantir que não há comportamento padrão
+                  if (isSubmitting) {
+                    e.preventDefault()
+                    e.stopPropagation()
+                  }
+                }}
               >
                 {isSubmitting ? 'Enviando...' : 'Falar com um Consultor'}
               </Button>

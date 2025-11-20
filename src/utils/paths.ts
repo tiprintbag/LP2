@@ -15,12 +15,14 @@ export function getAssetPath(path: string): string {
   // NEXT_PUBLIC_BASE_PATH é injetada no build time pelo next.config.js
   // Se USE_CUSTOM_DOMAIN=true, será '' (vazio)
   // Caso contrário, será '/LP2'
-  const basePath = process.env.NEXT_PUBLIC_BASE_PATH || '/LP2'
+  // Em desenvolvimento (localhost), sempre retorna o caminho direto (sem basePath)
+  const isDev = process.env.NODE_ENV === 'development'
+  const basePath = isDev ? '' : (process.env.NEXT_PUBLIC_BASE_PATH || '/LP2')
   
   // Remove barra inicial se já tiver basePath
   const cleanPath = path.startsWith('/') ? path : `/${path}`
   
-  // Se basePath estiver vazio, retorna apenas o caminho (domínio personalizado)
+  // Se basePath estiver vazio, retorna apenas o caminho (domínio personalizado ou localhost)
   if (!basePath || basePath === '/') {
     return cleanPath
   }

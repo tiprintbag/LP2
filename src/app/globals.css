@@ -36,6 +36,7 @@
   animation: scroll 30s linear infinite;
   display: flex;
   width: fit-content;
+  will-change: transform;
 }
 
 
