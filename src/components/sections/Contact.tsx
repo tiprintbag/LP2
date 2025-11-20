@@ -40,9 +40,12 @@ const Contact: React.FC = () => {
     })
   }
 
-  // Função para enviar email diretamente usando EmailJS
-  const sendEmail = async (data: typeof formData) => {
-    console.log('=== FUNÇÃO sendEmail CHAMADA ===')
+  // Função para enviar email diretamente usando EmailJS com retry
+  const sendEmail = async (data: typeof formData, retryCount = 0): Promise<boolean> => {
+    const MAX_RETRIES = 3
+    const RETRY_DELAY = 1000 // 1 segundo
+    
+    console.log(`=== FUNÇÃO sendEmail CHAMADA (tentativa ${retryCount + 1}/${MAX_RETRIES + 1}) ===`)
     
     // Configurações do EmailJS (serão configuradas via variáveis de ambiente)
     const serviceId = process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID || ''
@@ -63,6 +66,15 @@ const Contact: React.FC = () => {
     }
 
     try {
+      console.log('=== INICIALIZANDO EMAILJS ===')
+      // Inicializar EmailJS com a public key (pode ser necessário em algumas versões)
+      try {
+        emailjs.init(publicKey)
+        console.log('EmailJS inicializado com sucesso')
+      } catch (initError) {
+        console.log('EmailJS já inicializado ou não precisa de init:', initError)
+      }
+
       console.log('=== ENVIANDO EMAIL VIA EMAILJS ===')
       console.log('Dados a enviar:', data)
 
@@ -77,21 +89,42 @@ const Contact: React.FC = () => {
       }
 
       console.log('Template params:', templateParams)
+      console.log('Tentando enviar email...')
 
       // Enviar email usando EmailJS
+      // Assinatura: emailjs.send(serviceId, templateId, templateParams, publicKey)
       const result = await emailjs.send(serviceId, templateId, templateParams, publicKey)
 
-      console.log('Email enviado com sucesso via EmailJS:', result)
+      console.log('=== EMAIL ENVIADO COM SUCESSO VIA EMAILJS ===')
+      console.log('Resultado completo:', result)
+      console.log('Status:', result.status)
+      console.log('Text:', result.text)
       return true
     } catch (error) {
-      console.error('Erro ao enviar email via EmailJS:', error)
+      console.error(`=== ERRO AO ENVIAR EMAIL (tentativa ${retryCount + 1}) ===`)
+      console.error('Erro completo:', error)
+      
       if (error instanceof Error) {
         console.error('Detalhes do erro:', {
           message: error.message,
+          name: error.name,
           status: (error as any).status,
-          text: (error as any).text
+          text: (error as any).text,
+          stack: error.stack
         })
+      } else {
+        console.error('Erro desconhecido:', JSON.stringify(error))
       }
+
+      // Tentar novamente se ainda houver tentativas
+      if (retryCount < MAX_RETRIES) {
+        console.log(`Aguardando ${RETRY_DELAY}ms antes de tentar novamente...`)
+        await new Promise(resolve => setTimeout(resolve, RETRY_DELAY * (retryCount + 1)))
+        console.log(`=== TENTATIVA ${retryCount + 2} ===`)
+        return sendEmail(data, retryCount + 1)
+      }
+
+      console.error('=== TODAS AS TENTATIVAS FALHARAM ===')
       return false
     }
   }
