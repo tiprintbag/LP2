@@ -23,19 +23,29 @@ function processDirectory(dir) {
 
     if (stat.isDirectory()) {
       processDirectory(filePath);
-    } else if (file.endsWith('.html')) {
-      // Ler o arquivo HTML
+    } else if (file.endsWith('.html') || file.endsWith('.js')) {
+      // Ler o arquivo HTML ou JS
       let content = fs.readFileSync(filePath, 'utf8');
+      const originalContent = content;
       
       // Substituir /LP2/images/ por /images/
-      // Substituir /LP2/_next/ por /_next/ (incluindo CSS e JS)
-      // Substituir /LP2/favicon por /favicon
-      const originalContent = content;
       content = content.replace(/\/LP2\/images\//g, '/images/');
+      // Substituir /LP2/_next/ por /_next/ (incluindo CSS e JS)
       content = content.replace(/\/LP2\/_next\//g, '/_next/');
+      // Substituir /LP2/favicon por /favicon
       content = content.replace(/\/LP2\/favicon/g, '/favicon');
+      // Substituir href="/LP2/ por href="/
       content = content.replace(/href="\/LP2\//g, 'href="/');
+      // Substituir src="/LP2/ por src="/
       content = content.replace(/src="\/LP2\//g, 'src="/');
+      // Substituir assetPrefix":"/LP2" por assetPrefix":""
+      content = content.replace(/"assetPrefix":"\/LP2"/g, '"assetPrefix":""');
+      // Substituir assetPrefix:'/LP2' por assetPrefix:''
+      content = content.replace(/assetPrefix:'\/LP2'/g, "assetPrefix:''");
+      // Substituir assetPrefix: "/LP2" por assetPrefix: ""
+      content = content.replace(/assetPrefix:\s*"\/LP2"/g, 'assetPrefix: ""');
+      // Substituir qualquer referência a "/LP2/" no início de caminhos
+      content = content.replace(/["']\/LP2\//g, (match) => match.replace('/LP2/', '/'));
       
       // Se houve mudanças, escrever o arquivo
       if (content !== originalContent) {
