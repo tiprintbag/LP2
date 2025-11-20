@@ -1,12 +1,13 @@
 'use client'
 
 import React from 'react'
+import { getAssetPath } from '@/utils/paths'
 
 const LogosStrip: React.FC = () => {
-  // Usar caminhos diretos para garantir que funcione no localhost
+  // Usar getAssetPath para garantir que funcione em produção com domínio personalizado
   const images = [
-    '/images/parceiros.png',
-    '/images/parceiros1.png',
+    getAssetPath('/images/parceiros.png'),
+    getAssetPath('/images/parceiros1.png'),
   ]
 
   // Duplicar as imagens para criar um loop infinito suave
