@@ -4,6 +4,7 @@ import React, { useState } from 'react'
 import emailjs from '@emailjs/browser'
 import Button from '@/components/ui/Button'
 import Card from '@/components/ui/Card'
+import { buildWebhookPayload, getUtmPayload, type FormSubmissionPayload } from '@/utils/utm'
 
 const Contact: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -41,7 +42,7 @@ const Contact: React.FC = () => {
   }
 
   // Função para enviar email diretamente usando EmailJS com retry
-  const sendEmail = async (data: typeof formData, retryCount = 0): Promise<boolean> => {
+  const sendEmail = async (data: FormSubmissionPayload, retryCount = 0): Promise<boolean> => {
     const MAX_RETRIES = 3
     const RETRY_DELAY = 1000 // 1 segundo
     
@@ -86,6 +87,11 @@ const Contact: React.FC = () => {
         telefone: data.telefone,
         lojas: data.lojas,
         segmento: data.segmento,
+        utm_source: data.utm.utm_source,
+        utm_medium: data.utm.utm_medium,
+        utm_campaign: data.utm.utm_campaign,
+        utm_term: data.utm.utm_term,
+        utm_content: data.utm.utm_content,
       }
 
       console.log('Template params:', templateParams)
@@ -130,7 +136,7 @@ const Contact: React.FC = () => {
   }
 
   // Função para enviar dados para o webhook n8n
-  const sendToWebhook = async (data: typeof formData) => {
+  const sendToWebhook = async (data: FormSubmissionPayload) => {
     const webhookUrl = 'https://weisul-n8n.sburs0.easypanel.host/webhook/391ee2df-11e9-457e-9865-14c19f422f6d'
 
     try {
@@ -138,16 +144,11 @@ const Contact: React.FC = () => {
       console.log('URL do webhook:', webhookUrl)
       console.log('Dados a enviar:', data)
 
-      // Preparar dados no formato exato que o webhook espera
-      const formDataToSend = {
-        nome: data.nome.trim(),
-        email: data.email.trim(),
-        empresa: data.empresa.trim() || '',
-        telefone: data.telefone.trim(),
-        lojas: data.lojas,
-        segmento: data.segmento
-      }
+      // UTM sempre anexada no envio (objeto utm + campos no raiz para o n8n)
+      const formDataToSend = buildWebhookPayload(data)
 
+      console.log('=== UTM NO WEBHOOK ===', formDataToSend.utm)
+      console.log('Payload final (webhook):', formDataToSend)
       console.log('Dados formatados:', formDataToSend)
       console.log('JSON stringificado:', JSON.stringify(formDataToSend))
 
@@ -273,13 +274,14 @@ const Contact: React.FC = () => {
     setMessage(null)
 
     // Prepara os dados do formulário
-    const dataToSend = {
+    const dataToSend: FormSubmissionPayload = {
       nome: formData.nome.trim(),
       email: formData.email.trim(),
       empresa: formData.empresa.trim(),
       telefone: formData.telefone.trim(),
       lojas: formData.lojas,
       segmento: formData.segmento,
+      ...getUtmPayload(),
     }
 
     // Validação básica
@@ -290,6 +292,7 @@ const Contact: React.FC = () => {
     }
 
     console.log('=== INÍCIO DO ENVIO ===')
+    console.log('Payload final:', dataToSend)
     console.log('Dados a serem enviados:', dataToSend)
 
     // Envia email e webhook em paralelo

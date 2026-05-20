@@ -4,6 +4,7 @@ import './globals.css'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import GoogleTagManager from '@/components/GoogleTagManager'
+import UtmCapture from '@/components/UtmCapture'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -38,6 +39,7 @@ export default function RootLayout({
     <html lang="pt-BR">
       <body className={inter.className}>
         <GoogleTagManager />
+        <UtmCapture />
         <Header />
         <main className="min-h-screen">
           {children}
