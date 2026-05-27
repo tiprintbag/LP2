@@ -6,6 +6,12 @@ import Button from '@/components/ui/Button'
 import Card from '@/components/ui/Card'
 import { buildWebhookPayload, getUtmPayload, type FormSubmissionPayload } from '@/utils/utm'
 
+type ContactFormPayload = FormSubmissionPayload & {
+  perfil: string
+  volumeEstimado: string
+  origem: string
+}
+
 const Contact: React.FC = () => {
   const [formData, setFormData] = useState({
     nome: '',
@@ -14,6 +20,9 @@ const Contact: React.FC = () => {
     telefone: '',
     lojas: '1',
     segmento: 'Moda e Vestuário',
+    perfil: '',
+    volumeEstimado: '',
+    origem: '',
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
@@ -42,7 +51,7 @@ const Contact: React.FC = () => {
   }
 
   // Função para enviar email diretamente usando EmailJS com retry
-  const sendEmail = async (data: FormSubmissionPayload, retryCount = 0): Promise<boolean> => {
+  const sendEmail = async (data: ContactFormPayload, retryCount = 0): Promise<boolean> => {
     const MAX_RETRIES = 3
     const RETRY_DELAY = 1000 // 1 segundo
     
@@ -87,6 +96,9 @@ const Contact: React.FC = () => {
         telefone: data.telefone,
         lojas: data.lojas,
         segmento: data.segmento,
+        perfil: data.perfil,
+        volume_estimado: data.volumeEstimado,
+        origem: data.origem || 'Não informado',
         utm_source: data.utm.utm_source,
         utm_medium: data.utm.utm_medium,
         utm_campaign: data.utm.utm_campaign,
@@ -136,7 +148,7 @@ const Contact: React.FC = () => {
   }
 
   // Função para enviar dados para o webhook n8n
-  const sendToWebhook = async (data: FormSubmissionPayload) => {
+  const sendToWebhook = async (data: ContactFormPayload) => {
     const webhookUrl = 'https://weisul-n8n.sburs0.easypanel.host/webhook/391ee2df-11e9-457e-9865-14c19f422f6d'
 
     try {
@@ -145,7 +157,12 @@ const Contact: React.FC = () => {
       console.log('Dados a enviar:', data)
 
       // UTM sempre anexada no envio (objeto utm + campos no raiz para o n8n)
-      const formDataToSend = buildWebhookPayload(data)
+      const formDataToSend = {
+        ...buildWebhookPayload(data),
+        perfil: data.perfil,
+        volumeEstimado: data.volumeEstimado,
+        origem: data.origem || 'Não informado',
+      }
 
       console.log('=== UTM NO WEBHOOK ===', formDataToSend.utm)
       console.log('Payload final (webhook):', formDataToSend)
@@ -274,18 +291,21 @@ const Contact: React.FC = () => {
     setMessage(null)
 
     // Prepara os dados do formulário
-    const dataToSend: FormSubmissionPayload = {
+    const dataToSend: ContactFormPayload = {
       nome: formData.nome.trim(),
       email: formData.email.trim(),
       empresa: formData.empresa.trim(),
       telefone: formData.telefone.trim(),
       lojas: formData.lojas,
       segmento: formData.segmento,
+      perfil: formData.perfil,
+      volumeEstimado: formData.volumeEstimado,
+      origem: formData.origem.trim(),
       ...getUtmPayload(),
     }
 
     // Validação básica
-    if (!dataToSend.nome || !dataToSend.email || !dataToSend.telefone) {
+    if (!dataToSend.nome || !dataToSend.email || !dataToSend.telefone || !dataToSend.perfil || !dataToSend.volumeEstimado) {
       setMessage({ type: 'error', text: 'Por favor, preencha todos os campos obrigatórios.' })
       setIsSubmitting(false)
       return
@@ -335,6 +355,9 @@ const Contact: React.FC = () => {
           telefone: '',
           lojas: '1',
           segmento: 'Moda e Vestuário',
+          perfil: '',
+          volumeEstimado: '',
+          origem: '',
         })
         
         // Manter posição do scroll
@@ -487,6 +510,67 @@ const Contact: React.FC = () => {
                 </select>
               </div>
 
+              <div>
+                <label htmlFor="perfil" className="block text-sm font-medium text-gray-700 mb-2">
+                  Qual o seu perfil? *
+                </label>
+                <select
+                  id="perfil"
+                  name="perfil"
+                  required
+                  value={formData.perfil}
+                  onChange={handleChange}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                >
+                  <option value="">Selecione...</option>
+                  <option value="Comprador / Suprimentos">Comprador / Suprimentos</option>
+                  <option value="Diretor / Gestor">Diretor / Gestor</option>
+                  <option value="Agente de Marketing">Agente de Marketing</option>
+                  <option value="Pessoa Física / Cliente Final">Pessoa Física / Cliente Final</option>
+                </select>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div>
+                  <label htmlFor="volumeEstimado" className="block text-sm font-medium text-gray-700 mb-2">
+                    Volume Estimado *
+                  </label>
+                  <select
+                    id="volumeEstimado"
+                    name="volumeEstimado"
+                    required
+                    value={formData.volumeEstimado}
+                    onChange={handleChange}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  >
+                    <option value="">Selecione...</option>
+                    <option value="1.000 a 5.000 unidades">1.000 a 5.000 unidades</option>
+                    <option value="5.000 a 10.000 unidades">5.000 a 10.000 unidades</option>
+                    <option value="10.000 a 50.000 unidades">10.000 a 50.000 unidades</option>
+                    <option value="Acima de 50.000 unidades">Acima de 50.000 unidades</option>
+                  </select>
+                </div>
+                <div>
+                  <label htmlFor="origem" className="block text-sm font-medium text-gray-700 mb-2">
+                    Por onde nos conheceu
+                  </label>
+                  <select
+                    id="origem"
+                    name="origem"
+                    value={formData.origem}
+                    onChange={handleChange}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  >
+                    <option value="">Selecione...</option>
+                    <option value="Google / Busca online">Google / Busca online</option>
+                    <option value="Redes Sociais">Redes Sociais</option>
+                    <option value="Indicação">Indicação</option>
+                    <option value="Evento ou Feira">Evento ou Feira</option>
+                    <option value="Já conhecia a marca">Já conhecia a marca</option>
+                    <option value="Outros">Outros</option>
+                  </select>
+                </div>
+              </div>
               <Button
                 type="submit"
                 variant="primary"
