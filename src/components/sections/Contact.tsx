@@ -9,7 +9,6 @@ import { buildWebhookPayload, getUtmPayload, type FormSubmissionPayload } from '
 type ContactFormPayload = FormSubmissionPayload & {
   perfil: string
   volumeEstimado: string
-  origem: string
 }
 
 const Contact: React.FC = () => {
@@ -22,7 +21,6 @@ const Contact: React.FC = () => {
     segmento: 'Moda e Vestuário',
     perfil: '',
     volumeEstimado: '',
-    origem: '',
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
@@ -98,7 +96,6 @@ const Contact: React.FC = () => {
         segmento: data.segmento,
         perfil: data.perfil,
         volume_estimado: data.volumeEstimado,
-        origem: data.origem || 'Não informado',
         utm_source: data.utm.utm_source,
         utm_medium: data.utm.utm_medium,
         utm_campaign: data.utm.utm_campaign,
@@ -161,7 +158,6 @@ const Contact: React.FC = () => {
         ...buildWebhookPayload(data),
         perfil: data.perfil,
         volumeEstimado: data.volumeEstimado,
-        origem: data.origem || 'Não informado',
       }
 
       console.log('=== UTM NO WEBHOOK ===', formDataToSend.utm)
@@ -300,7 +296,6 @@ const Contact: React.FC = () => {
       segmento: formData.segmento,
       perfil: formData.perfil,
       volumeEstimado: formData.volumeEstimado,
-      origem: formData.origem.trim(),
       ...getUtmPayload(),
     }
 
@@ -357,7 +352,6 @@ const Contact: React.FC = () => {
           segmento: 'Moda e Vestuário',
           perfil: '',
           volumeEstimado: '',
-          origem: '',
         })
         
         // Manter posição do scroll
@@ -530,46 +524,24 @@ const Contact: React.FC = () => {
                 </select>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                <div>
-                  <label htmlFor="volumeEstimado" className="block text-sm font-medium text-gray-700 mb-2">
-                    Volume Estimado *
-                  </label>
-                  <select
-                    id="volumeEstimado"
-                    name="volumeEstimado"
-                    required
-                    value={formData.volumeEstimado}
-                    onChange={handleChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                  >
-                    <option value="">Selecione...</option>
-                    <option value="1.000 a 5.000 unidades">1.000 a 5.000 unidades</option>
-                    <option value="5.000 a 10.000 unidades">5.000 a 10.000 unidades</option>
-                    <option value="10.000 a 50.000 unidades">10.000 a 50.000 unidades</option>
-                    <option value="Acima de 50.000 unidades">Acima de 50.000 unidades</option>
-                  </select>
-                </div>
-                <div>
-                  <label htmlFor="origem" className="block text-sm font-medium text-gray-700 mb-2">
-                    Por onde nos conheceu
-                  </label>
-                  <select
-                    id="origem"
-                    name="origem"
-                    value={formData.origem}
-                    onChange={handleChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                  >
-                    <option value="">Selecione...</option>
-                    <option value="Google / Busca online">Google / Busca online</option>
-                    <option value="Redes Sociais">Redes Sociais</option>
-                    <option value="Indicação">Indicação</option>
-                    <option value="Evento ou Feira">Evento ou Feira</option>
-                    <option value="Já conhecia a marca">Já conhecia a marca</option>
-                    <option value="Outros">Outros</option>
-                  </select>
-                </div>
+              <div>
+                <label htmlFor="volumeEstimado" className="block text-sm font-medium text-gray-700 mb-2">
+                  Volume Estimado *
+                </label>
+                <select
+                  id="volumeEstimado"
+                  name="volumeEstimado"
+                  required
+                  value={formData.volumeEstimado}
+                  onChange={handleChange}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                >
+                  <option value="">Selecione...</option>
+                  <option value="1.000 a 5.000 unidades">1.000 a 5.000 unidades</option>
+                  <option value="5.000 a 10.000 unidades">5.000 a 10.000 unidades</option>
+                  <option value="10.000 a 50.000 unidades">10.000 a 50.000 unidades</option>
+                  <option value="Acima de 50.000 unidades">Acima de 50.000 unidades</option>
+                </select>
               </div>
               <Button
                 type="submit"
