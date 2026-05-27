@@ -39,7 +39,7 @@ jobs:
           USE_CUSTOM_DOMAIN: true
 
       - name: Create CNAME file
-        run: echo "www.embalagensprintbag.com.br" > ./out/CNAME
+        run: echo "www.embalagensprintbag.com" > ./out/CNAME
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
