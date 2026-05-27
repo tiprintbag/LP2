@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://www.embalagensprintbag.com.br/sitemap.xml

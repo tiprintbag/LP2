@@ -5,13 +5,33 @@ import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import GoogleTagManager from '@/components/GoogleTagManager'
 import UtmCapture from '@/components/UtmCapture'
+import { SITE_URL } from '@/utils/site'
 
 const inter = Inter({ subsets: ['latin'] })
 
+const siteDescription =
+  'Mais que uma indústria gráfica — somos especialistas em inovar, encantar e apaixonar pessoas. Embalagens de papel personalizadas com certificação FSC.'
+
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: 'Printbag - Embalagens de Papel Personalizadas e Sustentáveis',
-  description: 'Mais que uma indústria gráfica — somos especialistas em inovar, encantar e apaixonar pessoas. Embalagens de papel personalizadas com certificação FSC.',
+  description: siteDescription,
   keywords: 'embalagens de papel, sacolas sustentáveis, embalagens personalizadas, FSC, Camboriú SC',
+  alternates: {
+    canonical: '/',
+  },
+  openGraph: {
+    type: 'website',
+    locale: 'pt_BR',
+    url: SITE_URL,
+    siteName: 'Printbag',
+    title: 'Printbag - Embalagens de Papel Personalizadas e Sustentáveis',
+    description: siteDescription,
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
   icons: {
     icon: [
       { url: '/favicon.png', type: 'image/png' },
